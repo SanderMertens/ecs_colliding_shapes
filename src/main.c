@@ -12,7 +12,7 @@ void InitPV(EcsRows *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
 
-    for (int i = rows->begin; i < rows->end; i ++) {
+    for (int i = 0; i < rows->count; i ++) {
         v[i].x = rand() % SPEED - SPEED / 2;
         v[i].y = rand() % SPEED - SPEED / 2;
         p[i].x = (rand() % (int)(SCREEN_X - SIZE)) + SIZE / 2 - MAX_X;
@@ -24,7 +24,7 @@ void Bounce(EcsRows *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
 
-    for (int i = rows->begin; i < rows->end; i ++) {
+    for (int i = 0; i < rows->count; i ++) {
         if (ecs_clamp(&p[i].x, -MAX_X + SIZE / 2, MAX_X - SIZE / 2)) {
             v[i].x *= -1.0; /* Reverse x velocity if ball hits a vertical wall */
         }
@@ -37,7 +37,7 @@ void Bounce(EcsRows *rows) {
 
 void ResetColor(EcsRows *rows) {
     EcsColor *color = ecs_column(rows, EcsColor, 1);
-    for (int i = rows->begin; i < rows->end; i ++) {
+    for (int i = 0; i < rows->count; i ++) {
         color[i] = (EcsColor){
             .r = color[i].r * 0.97, .g = 50, .b = 255, .a = 255
         };
@@ -48,7 +48,7 @@ void SetColorOnCollide(EcsRows *rows) {
     EcsCollision2D *collision = ecs_column(rows, EcsCollision2D, 1);
     EcsType TEcsColor = ecs_column_type(rows, 2);
 
-    for (int i = rows->begin; i < rows->end; i ++) {
+    for (int i = 0; i < rows->count; i ++) {
         ecs_set(rows->world, collision[i].entity_1, EcsColor, {255, 50, 100, 255});
         ecs_set(rows->world, collision[i].entity_2, EcsColor, {255, 50, 100, 255});
     }
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     ECS_IMPORT(world, EcsSystemsSdl2, ECS_2D);
 
     /* Define prefabs for Circle and Square (for shared components) */
-    ECS_PREFAB(world, ShapePrefab, EcsCollider, EcsColor;
+    ECS_PREFAB(world, ShapePrefab, EcsCollider, EcsColor);
     ECS_PREFAB(world, SquarePrefab, ShapePrefab, EcsSquare);
     ECS_PREFAB(world, CirclePrefab, ShapePrefab, EcsCircle);
     ecs_set(world, ShapePrefab, EcsColor, {.r = 0, .g = 50, .b = 100, .a = 255});
