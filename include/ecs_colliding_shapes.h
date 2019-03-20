@@ -1,5 +1,5 @@
-#ifndef ECS_SHAPES_H
-#define ECS_SHAPES_H
+#ifndef ECS_COLLIDING_SHAPES_H
+#define ECS_COLLIDING_SHAPES_H
 
 /* This generated file contains includes for project dependencies */
 #include "bake_config.h"

@@ -1,4 +1,4 @@
-#include <include/ecs_shapes.h>
+#include <include/ecs_colliding_shapes.h>
 
 #define NUM_SHAPES (1000)
 #define SCREEN_X (800)
