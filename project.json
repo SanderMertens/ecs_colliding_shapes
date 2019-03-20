@@ -1,5 +1,5 @@
 {
-    "id": "ecs_collidiong_shapes",
+    "id": "ecs_colliding_shapes",
     "type": "application",
     "value": {
         "author": "Sander Mertens",

@@ -14,8 +14,8 @@
  * dependencies will automatically show up in this file. Include bake_config.h
  * in your main project file. Do not edit! */
 
-#ifndef ECS_COLLIDIONG_SHAPES_BAKE_CONFIG_H
-#define ECS_COLLIDIONG_SHAPES_BAKE_CONFIG_H
+#ifndef ECS_COLLIDING_SHAPES_BAKE_CONFIG_H
+#define ECS_COLLIDING_SHAPES_BAKE_CONFIG_H
 
 /* Headers of public dependencies */
 #include <flecs>
@@ -28,19 +28,19 @@
 #include <flecs.math>
 
 /* Headers of private dependencies */
-#ifdef ECS_COLLIDIONG_SHAPES_IMPL
+#ifdef ECS_COLLIDING_SHAPES_IMPL
 /* No dependencies */
 #endif
 
 /* Convenience macro for exporting symbols */
-#if ECS_COLLIDIONG_SHAPES_IMPL && defined _MSC_VER
-#define ECS_COLLIDIONG_SHAPES_EXPORT __declspec(dllexport)
-#elif ECS_COLLIDIONG_SHAPES_IMPL
-#define ECS_COLLIDIONG_SHAPES_EXPORT __attribute__((__visibility__("default")))
+#if ECS_COLLIDING_SHAPES_IMPL && defined _MSC_VER
+#define ECS_COLLIDING_SHAPES_EXPORT __declspec(dllexport)
+#elif ECS_COLLIDING_SHAPES_IMPL
+#define ECS_COLLIDING_SHAPES_EXPORT __attribute__((__visibility__("default")))
 #elif defined _MSC_VER
-#define ECS_COLLIDIONG_SHAPES_EXPORT __declspec(dllimport)
+#define ECS_COLLIDING_SHAPES_EXPORT __declspec(dllimport)
 #else
-#define ECS_COLLIDIONG_SHAPES_EXPORT
+#define ECS_COLLIDING_SHAPES_EXPORT
 #endif
 
 #endif
