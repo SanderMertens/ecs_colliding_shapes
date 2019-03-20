@@ -1,0 +1,18 @@
+{
+    "id": "ecs_collidiong_shapes",
+    "type": "application",
+    "value": {
+        "author": "Sander Mertens",
+        "description": "Application with a large number of colliding shapes",
+        "use": [
+            "flecs",
+            "flecs.components.transform",
+            "flecs.components.physics",
+            "flecs.components.geometry",
+            "flecs.components.graphics",
+            "flecs.systems.physics",
+            "flecs.systems.sdl2",
+            "flecs.math"
+        ]
+    }
+}
