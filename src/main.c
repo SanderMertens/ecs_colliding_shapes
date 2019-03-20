@@ -64,9 +64,9 @@ int main(int argc, char *argv[]) {
     ECS_IMPORT(world, EcsSystemsSdl2, ECS_2D);
 
     /* Define prefabs for Circle and Square (for shared components) */
-    ECS_PREFAB(world, ShapePrefab, EcsColor, EcsCollider);
-    ECS_PREFAB(world, SquarePrefab, ShapePrefab, EcsCollider, EcsSquare);
-    ECS_PREFAB(world, CirclePrefab, ShapePrefab, EcsCollider, EcsCircle);
+    ECS_PREFAB(world, ShapePrefab, EcsCollider, EcsColor;
+    ECS_PREFAB(world, SquarePrefab, ShapePrefab, EcsSquare);
+    ECS_PREFAB(world, CirclePrefab, ShapePrefab, EcsCircle);
     ecs_set(world, ShapePrefab, EcsColor, {.r = 0, .g = 50, .b = 100, .a = 255});
     ecs_set(world, SquarePrefab, EcsSquare, {.size = SIZE});
     ecs_set(world, CirclePrefab, EcsCircle, {.radius = SIZE / 2});
