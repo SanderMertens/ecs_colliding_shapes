@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
     ECS_TYPE(world, Circle, CirclePrefab, Shape, EcsColor);
 
     /* Initialization system with random position & velocity */
-    ECS_SYSTEM(world, InitPV, EcsOnAdd, EcsPosition2D, EcsVelocity2D, EcsColor);
+    ECS_SYSTEM(world, InitPV, EcsOnAdd, EcsPosition2D, EcsVelocity2D);
     ECS_SYSTEM(world, Bounce, EcsOnFrame, EcsPosition2D, EcsVelocity2D);
     ECS_SYSTEM(world, ResetColor, EcsOnFrame, EcsColor);
     ECS_SYSTEM(world, SetColorOnCollide, EcsOnSet, EcsCollision2D, ID.EcsColor);
