@@ -10,6 +10,7 @@
             "flecs.components.physics",
             "flecs.components.geometry",
             "flecs.components.graphics",
+            "flecs.components.input",
             "flecs.systems.physics",
             "flecs.systems.sdl2",
             "flecs.math"

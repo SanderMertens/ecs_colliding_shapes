@@ -1,20 +1,29 @@
 #include <include/ecs_colliding_shapes.h>
 
-#define NUM_SHAPES (1000)
+#define NUM_SHAPES (4000)
 #define SCREEN_X (800)
 #define SCREEN_Y (600)
 #define MAX_X (SCREEN_X / 2)
 #define MAX_Y (SCREEN_Y / 2)
-#define SPEED (40)
-#define SIZE (7)
+#define SPEED (10)
+#define SIZE (2.0)
+#define FORCE (50000)
+#define IMPLODE_FORCE (25000)
+#define IMPLODE_REPEL_FORCE (300000)
+#define WALL_FORCE (3000)
 
 void InitPV(EcsRows *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
 
     for (int i = 0; i < rows->count; i ++) {
-        v[i].x = rand() % SPEED - SPEED / 2;
-        v[i].y = rand() % SPEED - SPEED / 2;
+        v[i].x = rand() % 2 - 1;
+        v[i].y = rand() % 2 - 1;
+        if (!v[i].x) v[i].x = 1;
+        if (!v[i].y) v[i].y = 1;
+        ecs_vec2_normalize(&v[i], &v[i]);
+        ecs_vec2_mult(&v[i], rand() % SPEED, &v[i]);
+
         p[i].x = (rand() % (int)(SCREEN_X - SIZE)) + SIZE / 2 - MAX_X;
         p[i].y = (rand() % (int)(SCREEN_Y - SIZE)) + SIZE / 2 - MAX_Y;
     }
@@ -35,27 +44,111 @@ void Bounce(EcsRows *rows) {
     }
 }
 
-void ResetColor(EcsRows *rows) {
+void FadeColor(EcsRows *rows) {
     EcsColor *color = ecs_column(rows, EcsColor, 1);
+    EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
     for (int i = 0; i < rows->count; i ++) {
+        float speed = ecs_vec2_magnitude(&v[i]);
+        float green = 50.0 * (speed / (float)SPEED);
+        if (green > 255) {
+            green = 255;
+        }
+
+        float red = color[i].r * 0.95;
+        if (red < 50) {
+            red = 50;
+        }
+
         color[i] = (EcsColor){
-            .r = color[i].r * 0.97, .g = 50, .b = 255, .a = 255
+            .r = red, .g = green, .b = 255, .a = 255
         };
     }
 }
 
-void SetColorOnCollide(EcsRows *rows) {
+void FadeVelocity(EcsRows *rows) {
+    EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
+    EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
+
+    for (int i = 0; i < rows->count; i ++) {
+        float d_left = p[i].x - -SCREEN_X;
+        float d_right = p[i].x - SCREEN_X;
+        float d_up = p[i].y - -SCREEN_Y;
+        float d_down = p[i].y - SCREEN_Y;
+        d_left *= d_left;
+        d_right *= d_right;
+        d_up *= d_up;
+        d_down *= d_down;
+
+        v[i].x += WALL_FORCE / d_left - WALL_FORCE / d_right;
+        v[i].y += WALL_FORCE / d_up - WALL_FORCE / d_down;
+        
+        float size = ecs_vec2_magnitude(&v[i]);
+        if (size > SPEED) {
+            ecs_vec2_mult(&v[i], 0.80, &v[i]);
+        }
+    }
+}
+
+void Explode(EcsRows *rows) {
+    EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
+    EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
+    EcsVec2 force = {0, 0};
+    EcsVec2 *blast = rows->param;
+
+    for (int i = 0; i < rows->count; i ++) {
+        ecs_vec2_sub(&p[i], blast, &force);
+        float distance = ecs_vec2_magnitude(&force);
+        ecs_vec2_div(&force, (distance * distance * distance) / FORCE, &force);
+        ecs_vec2_add(&v[i], &force, &v[i]);
+    }    
+}
+
+void Implode(EcsRows *rows) {
+    EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
+    EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
+    EcsVec2 force = {0, 0};
+    EcsVec2 *blast = rows->param;
+
+    for (int i = 0; i < rows->count; i ++) {
+        ecs_vec2_sub(&p[i], blast, &force);
+        float distance = ecs_vec2_magnitude(&force);
+        if (distance > 50.0) {
+            ecs_vec2_div(&force, (distance * distance * distance) / IMPLODE_FORCE, &force);
+            ecs_vec2_sub(&v[i], &force, &v[i]);
+        } else {
+            ecs_vec2_div(&force, (distance * distance * distance) / IMPLODE_REPEL_FORCE, &force);
+            ecs_vec2_add(&v[i], &force, &v[i]);
+        }
+    }    
+}
+
+void Input(EcsRows *rows) {
+    EcsInput *input = ecs_column(rows, EcsInput, 1);
+    EcsEntity Explode = ecs_column_component(rows, 2);
+    EcsEntity Implode = ecs_column_component(rows, 3);
+
+    if (input->mouse.left.current) {
+        ecs_run(rows->world, Explode, rows->delta_time, &input->mouse.view);
+    } else if (input->mouse.right.current) {
+        ecs_run(rows->world, Implode, rows->delta_time, &input->mouse.view);
+    }
+}
+
+void OnCollide(EcsRows *rows) {
     EcsCollision2D *collision = ecs_column(rows, EcsCollision2D, 1);
     EcsType TEcsColor = ecs_column_type(rows, 2);
 
     for (int i = 0; i < rows->count; i ++) {
-        ecs_set(rows->world, collision[i].entity_1, EcsColor, {255, 50, 100, 255});
-        ecs_set(rows->world, collision[i].entity_2, EcsColor, {255, 50, 100, 255});
+        EcsColor *c_1 = ecs_get_ptr(rows->world, collision[i].entity_1, EcsColor);
+        EcsColor *c_2 = ecs_get_ptr(rows->world, collision[i].entity_2, EcsColor);
+
+        c_1->r = 255;
+        c_2->r = 255;
     }
 }
 
 int main(int argc, char *argv[]) {
-    EcsWorld *world = ecs_init();
+    EcsWorld *world = ecs_init_w_args(argc, argv);
 
     ECS_IMPORT(world, EcsComponentsTransform, ECS_2D);
     ECS_IMPORT(world, EcsComponentsGeometry, ECS_2D);
@@ -80,19 +173,31 @@ int main(int argc, char *argv[]) {
 
     /* Initialization system with random position & velocity */
     ECS_SYSTEM(world, InitPV, EcsOnAdd, EcsPosition2D, EcsVelocity2D);
+
+    /* Bounce shapes of screen boundaries */
     ECS_SYSTEM(world, Bounce, EcsOnFrame, EcsPosition2D, EcsVelocity2D);
-    ECS_SYSTEM(world, ResetColor, EcsOnFrame, EcsColor);
-    ECS_SYSTEM(world, SetColorOnCollide, EcsOnSet, EcsCollision2D, ID.EcsColor);
+
+    /* Set color & velocity */
+    ECS_SYSTEM(world, FadeColor, EcsOnFrame, EcsColor, EcsVelocity2D);
+    ECS_SYSTEM(world, FadeVelocity, EcsOnFrame, EcsPosition2D, EcsVelocity2D);
+    ECS_SYSTEM(world, OnCollide, EcsOnSet, EcsCollision2D, ID.EcsColor, ID.EcsVelocity2D);
+
+    /* Explode */
+    ECS_SYSTEM(world, Explode, EcsManual, EcsPosition2D, EcsVelocity2D);
+    ECS_SYSTEM(world, Implode, EcsManual, EcsPosition2D, EcsVelocity2D);
+    ECS_SYSTEM(world, Input, EcsOnFrame, EcsInput, ID.Explode, ID.Implode);
 
     /* Initialize canvas */
     ecs_set_singleton(world, EcsCanvas2D, {
-        .window = { .width = SCREEN_X, .height = SCREEN_Y }, 
+        .window = { .width = SCREEN_X, .height = SCREEN_Y },
+        .viewport = { .width = SCREEN_X, .height = SCREEN_Y, .x = -SCREEN_X / 2, .y = -SCREEN_Y / 2},
         .title = "Hello ecs_shapes!" 
     });
 
     /* Initialize shapes */
-    ecs_new_w_count(world, Square, NUM_SHAPES / 2, NULL);
-    ecs_new_w_count(world, Circle, NUM_SHAPES / 2, NULL);
+    ecs_new_w_count(world, Circle, NUM_SHAPES, NULL);
+
+    ecs_set_threads(world, 12);
 
     /* Enter main loop */
     ecs_set_target_fps(world, 60);
