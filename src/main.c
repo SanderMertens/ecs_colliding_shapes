@@ -1,6 +1,6 @@
 #include <include/ecs_colliding_shapes.h>
 
-#define NUM_SHAPES (4000)
+#define NUM_SHAPES (1000)
 #define SCREEN_X (800)
 #define SCREEN_Y (600)
 #define MAX_X (SCREEN_X / 2)
@@ -12,7 +12,7 @@
 #define IMPLODE_REPEL_FORCE (300000)
 #define WALL_FORCE (3000)
 
-void InitPV(EcsRows *rows) {
+void InitPV(ecs_rows_t *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
 
@@ -29,7 +29,7 @@ void InitPV(EcsRows *rows) {
     }
 }
 
-void Bounce(EcsRows *rows) {
+void Bounce(ecs_rows_t *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
 
@@ -44,7 +44,7 @@ void Bounce(EcsRows *rows) {
     }
 }
 
-void FadeColor(EcsRows *rows) {
+void FadeColor(ecs_rows_t *rows) {
     EcsColor *color = ecs_column(rows, EcsColor, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
     for (int i = 0; i < rows->count; i ++) {
@@ -54,18 +54,13 @@ void FadeColor(EcsRows *rows) {
             green = 255;
         }
 
-        float red = color[i].r * 0.95;
-        if (red < 50) {
-            red = 50;
-        }
-
         color[i] = (EcsColor){
-            .r = red, .g = green, .b = 255, .a = 255
+            .r = color[i].r * 0.96, .g = green, .b = 255, .a = 255
         };
     }
 }
 
-void FadeVelocity(EcsRows *rows) {
+void FadeVelocity(ecs_rows_t *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
 
@@ -89,7 +84,7 @@ void FadeVelocity(EcsRows *rows) {
     }
 }
 
-void Explode(EcsRows *rows) {
+void Explode(ecs_rows_t *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
     EcsVec2 force = {0, 0};
@@ -103,7 +98,7 @@ void Explode(EcsRows *rows) {
     }    
 }
 
-void Implode(EcsRows *rows) {
+void Implode(ecs_rows_t *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
     EcsVelocity2D *v = ecs_column(rows, EcsVelocity2D, 2);
     EcsVec2 force = {0, 0};
@@ -122,7 +117,7 @@ void Implode(EcsRows *rows) {
     }    
 }
 
-void Input(EcsRows *rows) {
+void Input(ecs_rows_t *rows) {
     EcsInput *input = ecs_column(rows, EcsInput, 1);
     EcsEntity Explode = ecs_column_component(rows, 2);
     EcsEntity Implode = ecs_column_component(rows, 3);
@@ -134,7 +129,7 @@ void Input(EcsRows *rows) {
     }
 }
 
-void OnCollide(EcsRows *rows) {
+void OnCollide(ecs_rows_t *rows) {
     EcsCollision2D *collision = ecs_column(rows, EcsCollision2D, 1);
     EcsType TEcsColor = ecs_column_type(rows, 2);
 
@@ -148,7 +143,7 @@ void OnCollide(EcsRows *rows) {
 }
 
 int main(int argc, char *argv[]) {
-    EcsWorld *world = ecs_init_w_args(argc, argv);
+    ecs_world_t *world = ecs_init_w_args(argc, argv);
 
     ECS_IMPORT(world, EcsComponentsTransform, ECS_2D);
     ECS_IMPORT(world, EcsComponentsGeometry, ECS_2D);
@@ -180,7 +175,7 @@ int main(int argc, char *argv[]) {
     /* Set color & velocity */
     ECS_SYSTEM(world, FadeColor, EcsOnFrame, EcsColor, EcsVelocity2D);
     ECS_SYSTEM(world, FadeVelocity, EcsOnFrame, EcsPosition2D, EcsVelocity2D);
-    ECS_SYSTEM(world, OnCollide, EcsOnSet, EcsCollision2D, ID.EcsColor, ID.EcsVelocity2D);
+    ECS_SYSTEM(world, OnCollide, EcsOnSet, EcsCollision2D, ID.EcsColor);
 
     /* Explode */
     ECS_SYSTEM(world, Explode, EcsManual, EcsPosition2D, EcsVelocity2D);
