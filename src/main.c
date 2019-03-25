@@ -119,8 +119,8 @@ void Implode(ecs_rows_t *rows) {
 
 void Input(ecs_rows_t *rows) {
     EcsInput *input = ecs_column(rows, EcsInput, 1);
-    EcsEntity Explode = ecs_column_component(rows, 2);
-    EcsEntity Implode = ecs_column_component(rows, 3);
+    ecs_entity_t Explode = ecs_column_component(rows, 2);
+    ecs_entity_t Implode = ecs_column_component(rows, 3);
 
     if (input->mouse.left.current) {
         ecs_run(rows->world, Explode, rows->delta_time, &input->mouse.view);
@@ -131,7 +131,7 @@ void Input(ecs_rows_t *rows) {
 
 void OnCollide(ecs_rows_t *rows) {
     EcsCollision2D *collision = ecs_column(rows, EcsCollision2D, 1);
-    EcsType TEcsColor = ecs_column_type(rows, 2);
+    ecs_type_t TEcsColor = ecs_column_type(rows, 2);
 
     for (int i = 0; i < rows->count; i ++) {
         EcsColor *c_1 = ecs_get_ptr(rows->world, collision[i].entity_1, EcsColor);
