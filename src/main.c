@@ -1,16 +1,20 @@
 #include <include/ecs_colliding_shapes.h>
 
-#define NUM_SHAPES (1000)
+#define THREADS (12)
+#define NUM_SHAPES (2500)
+
+#define SPEED (10)
+#define SIZE (2.0)
+#define FORCE (50000)
+#define IMPLODE_FORCE (50000)
+#define IMPLODE_REPEL_FORCE (3000)
+#define IMPLODE_DISTANCE (40.0)
+#define WALL_FORCE (300)
+
 #define SCREEN_X (800)
 #define SCREEN_Y (600)
 #define MAX_X (SCREEN_X / 2)
 #define MAX_Y (SCREEN_Y / 2)
-#define SPEED (10)
-#define SIZE (2.0)
-#define FORCE (50000)
-#define IMPLODE_FORCE (25000)
-#define IMPLODE_REPEL_FORCE (300000)
-#define WALL_FORCE (3000)
 
 void InitPV(ecs_rows_t *rows) {
     EcsPosition2D *p = ecs_column(rows, EcsPosition2D, 1);
@@ -107,7 +111,7 @@ void Implode(ecs_rows_t *rows) {
     for (int i = 0; i < rows->count; i ++) {
         ecs_vec2_sub(&p[i], blast, &force);
         float distance = ecs_vec2_magnitude(&force);
-        if (distance > 50.0) {
+        if (distance > IMPLODE_DISTANCE) {
             ecs_vec2_div(&force, (distance * distance * distance) / IMPLODE_FORCE, &force);
             ecs_vec2_sub(&v[i], &force, &v[i]);
         } else {
@@ -192,7 +196,7 @@ int main(int argc, char *argv[]) {
     /* Initialize shapes */
     ecs_new_w_count(world, Circle, NUM_SHAPES, NULL);
 
-    ecs_set_threads(world, 12);
+    ecs_set_threads(world, THREADS);
 
     /* Enter main loop */
     ecs_set_target_fps(world, 60);
