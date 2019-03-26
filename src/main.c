@@ -119,8 +119,8 @@ void Implode(ecs_rows_t *rows) {
 
 void Input(ecs_rows_t *rows) {
     EcsInput *input = ecs_column(rows, EcsInput, 1);
-    ecs_entity_t Explode = ecs_column_component(rows, 2);
-    ecs_entity_t Implode = ecs_column_component(rows, 3);
+    ecs_entity_t Explode = ecs_column_entity(rows, 2);
+    ecs_entity_t Implode = ecs_column_entity(rows, 3);
 
     if (input->mouse.left.current) {
         ecs_run(rows->world, Explode, rows->delta_time, &input->mouse.view);
