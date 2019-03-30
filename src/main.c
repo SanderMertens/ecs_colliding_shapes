@@ -174,17 +174,17 @@ int main(int argc, char *argv[]) {
     ECS_SYSTEM(world, InitPV, EcsOnAdd, EcsPosition2D, EcsVelocity2D);
 
     /* Bounce shapes of screen boundaries */
-    ECS_SYSTEM(world, Bounce, EcsOnFrame, EcsPosition2D, EcsVelocity2D);
+    ECS_SYSTEM(world, Bounce, EcsOnUpdate, EcsPosition2D, EcsVelocity2D);
 
     /* Set color & velocity */
-    ECS_SYSTEM(world, FadeColor, EcsOnFrame, EcsColor, EcsVelocity2D);
-    ECS_SYSTEM(world, FadeVelocity, EcsOnFrame, EcsPosition2D, EcsVelocity2D);
-    ECS_SYSTEM(world, OnCollide, EcsOnSet, EcsCollision2D, ID.EcsColor);
+    ECS_SYSTEM(world, FadeColor, EcsOnUpdate, EcsColor, EcsVelocity2D);
+    ECS_SYSTEM(world, FadeVelocity, EcsOnUpdate, EcsPosition2D, EcsVelocity2D);
+    ECS_SYSTEM(world, OnCollide, EcsPostUpdate, EcsCollision2D, ID.EcsColor);
 
     /* Explode */
     ECS_SYSTEM(world, Explode, EcsManual, EcsPosition2D, EcsVelocity2D);
     ECS_SYSTEM(world, Implode, EcsManual, EcsPosition2D, EcsVelocity2D);
-    ECS_SYSTEM(world, Input, EcsOnFrame, EcsInput, ID.Explode, ID.Implode);
+    ECS_SYSTEM(world, Input, EcsOnUpdate, EcsInput, ID.Explode, ID.Implode);
 
     /* Initialize canvas */
     ecs_set_singleton(world, EcsCanvas2D, {
