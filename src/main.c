@@ -194,7 +194,7 @@ int main(int argc, char *argv[]) {
     });
 
     /* Initialize shapes */
-    ecs_new_w_count(world, Circle, NUM_SHAPES, NULL);
+    ecs_new_w_count(world, Circle, NUM_SHAPES);
 
     ecs_set_threads(world, THREADS);
 
