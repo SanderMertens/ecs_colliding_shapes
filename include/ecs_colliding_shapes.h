@@ -2,7 +2,7 @@
 #define ECS_COLLIDING_SHAPES_H
 
 /* This generated file contains includes for project dependencies */
-#include "bake_config.h"
+#include <ecs_colliding_shapes/bake_config.h>
 
 #ifdef __cplusplus
 extern "C" {

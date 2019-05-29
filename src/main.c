@@ -1,4 +1,4 @@
-#include <include/ecs_colliding_shapes.h>
+#include <ecs_colliding_shapes.h>
 
 #define THREADS (12)
 #define NUM_SHAPES (4000)
