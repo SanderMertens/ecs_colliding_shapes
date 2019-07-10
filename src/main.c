@@ -157,8 +157,8 @@ int main(int argc, char *argv[]) {
 
     /* Define prefabs for Circle and Square (for shared components) */
     ECS_PREFAB(world, ShapePrefab, EcsCollider, EcsColor);
-    ECS_PREFAB(world, SquarePrefab, ShapePrefab, EcsSquare);
-    ECS_PREFAB(world, CirclePrefab, ShapePrefab, EcsCircle);
+    ECS_PREFAB(world, SquarePrefab, INSTANCEOF | ShapePrefab, EcsSquare);
+    ECS_PREFAB(world, CirclePrefab, INSTANCEOF | ShapePrefab, EcsCircle);
     ecs_set(world, ShapePrefab, EcsColor, {.r = 0, .g = 50, .b = 100, .a = 255});
     ecs_set(world, SquarePrefab, EcsSquare, {.size = SIZE});
     ecs_set(world, CirclePrefab, EcsCircle, {.radius = SIZE / 2});
@@ -167,8 +167,8 @@ int main(int argc, char *argv[]) {
     ECS_TYPE(world, Shape, EcsPosition2D, EcsVelocity2D);
 
     /* Combine shared & owned components into dedicated Square & Circle types */
-    ECS_TYPE(world, Square, SquarePrefab, Shape, EcsColor);
-    ECS_TYPE(world, Circle, CirclePrefab, Shape, EcsColor);
+    ECS_TYPE(world, Square, INSTANCEOF | SquarePrefab, Shape, EcsColor);
+    ECS_TYPE(world, Circle, INSTANCEOF | CirclePrefab, Shape, EcsColor);
 
     /* Initialization system with random position & velocity */
     ECS_SYSTEM(world, InitPV, EcsOnAdd, EcsPosition2D, EcsVelocity2D);
@@ -179,12 +179,12 @@ int main(int argc, char *argv[]) {
     /* Set color & velocity */
     ECS_SYSTEM(world, FadeColor, EcsOnUpdate, EcsColor, EcsVelocity2D);
     ECS_SYSTEM(world, FadeVelocity, EcsOnUpdate, EcsPosition2D, EcsVelocity2D);
-    ECS_SYSTEM(world, OnCollide, EcsPostUpdate, EcsCollision2D, ID.EcsColor);
+    ECS_SYSTEM(world, OnCollide, EcsPostUpdate, EcsCollision2D, .EcsColor);
 
     /* Explode */
     ECS_SYSTEM(world, Explode, EcsManual, EcsPosition2D, EcsVelocity2D);
     ECS_SYSTEM(world, Implode, EcsManual, EcsPosition2D, EcsVelocity2D);
-    ECS_SYSTEM(world, Input, EcsOnUpdate, EcsInput, ID.Explode, ID.Implode);
+    ECS_SYSTEM(world, Input, EcsOnUpdate, EcsInput, .Explode, .Implode);
 
     /* Initialize canvas */
     ecs_set_singleton(world, EcsCanvas2D, {
